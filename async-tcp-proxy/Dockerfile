@@ -9,7 +9,7 @@ RUN \
 # Copy data for add-on
 WORKDIR /
 COPY run.sh /
-WORKDIR /srv
+COPY srv/async-tcp-proxy.py /
 
 RUN chmod a+x /run.sh
 CMD [ "/run.sh" ]
