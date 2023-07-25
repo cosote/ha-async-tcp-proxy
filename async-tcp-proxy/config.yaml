@@ -1,0 +1,26 @@
+name: "async-tcp-proxy"
+description: "Proxy to access tcp servers using sinegle async socket. Allows multiple client connections"
+version: "0.0.1"
+slug: "async_tcp_proxy"
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+url: "https://github.com/cosote/ha-async-tcp-proxy"
+startup: services
+init: false
+options:
+  listenport: 8899
+  targethost: "192.168.177.202"
+  targetport: 8899
+  receive_timeout: 0.250
+  loglevel: "INFO"
+schema:
+  listenport: int
+  targethost: str
+  targetport: int
+  receive_timeout: float
+  loglevel: list(INFO|DEBUG|ERROR)
+ports:
+  8899/tcp: 8899
