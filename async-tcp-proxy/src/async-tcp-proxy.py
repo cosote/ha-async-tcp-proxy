@@ -44,8 +44,8 @@ def parse_args():
     parser.add_argument('-tp', '--targetport', dest='target_port', type=int,
                         help='remote target port')
 
-    parser.add_argument('-tt', '--targetreceivetimeout', dest='target_receive_timeout', default=0.250,
-                        help='Timeout in Seconds waiting for target response')
+    parser.add_argument('-tt', '--targetreceivetimeout', dest='target_receive_timeout', type=float,
+                        default=0.250, help='Timeout in Seconds waiting for target response')
                         
     parser.add_argument('-li', '--listenip', dest='listen_ip',
                         default='0.0.0.0', help='IP address/host name to listen for ' +
