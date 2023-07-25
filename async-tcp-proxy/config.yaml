@@ -1,5 +1,5 @@
 name: "async-tcp-proxy"
-description: "Proxy to access tcp servers using sinegle async socket. Allows multiple client connections"
+description: "Proxy to access a tcp server using single async socket. Allows multiple tcp client connections of any protocol like Modbus."
 version: "0.0.1"
 slug: "async_tcp_proxy"
 arch:
