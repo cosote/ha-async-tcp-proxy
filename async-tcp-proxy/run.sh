@@ -12,5 +12,6 @@ echo "Listen on port: $CONFIG_LISTENPORT"
 echo "Target Server: $CONFIG_HOST:$CONFIG_PORT"
 echo "Timeout: $CONFIG_TIMEOUT"
 echo "Loglevel: $CONFIG_LOGLEVEL"
+echo Execute: python async-tcp-proxy.py -lp ${CONFIG_LISTENPORT} -ti ${CONFIG_HOST} -tp ${CONFIG_PORT} -tt ${CONFIG_TIMEOUT}
 
-python async-tcp-proxy.py -ti ${CONFIG_HOST} -tp ${CONFIG_PORT} -tt ${CONFIG_TIMEOUT} -lp ${CONFIG_LISTENPORT}
+python async-tcp-proxy.py -lp ${CONFIG_LISTENPORT} -ti ${CONFIG_HOST} -tp ${CONFIG_PORT} -tt ${CONFIG_TIMEOUT}
