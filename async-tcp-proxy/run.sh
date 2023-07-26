@@ -17,10 +17,10 @@ echo "Server timeout: $CONFIG_SERVER_TIMEOUT"
 echo "Loglevel: $CONFIG_LOGLEVEL"
 
 if [ "$CONFIG_PROXY_IMPLEMENTATION" = "bing-bot" ]; then
-  cmd=python async-tcp-proxy-version-bing-bot.py --port $CONFIG_PORT --server-host $CONFIG_SERVER_HOST --server-port $CONFIG_SERVER_PORT --server-timeout $CONFIG_SERVER_TIMEOUT --client-timeout $CONFIG_CLIENT_TIMEOUT
+  execute="python async-tcp-proxy-version-bing-bot.py --port $CONFIG_PORT --server-host $CONFIG_SERVER_HOST --server-port $CONFIG_SERVER_PORT --server-timeout $CONFIG_SERVER_TIMEOUT --client-timeout $CONFIG_CLIENT_TIMEOUT"
 else
-  cmd=python async-tcp-proxy.py -lp $CONFIG_PORT -ti $CONFIG_SERVER_HOST -tp $CONFIG_SERVER_PORT -tt $CONFIG_SERVER_TIMEOUT
+  execute="python async-tcp-proxy.py -lp $CONFIG_PORT -ti $CONFIG_SERVER_HOST -tp $CONFIG_SERVER_PORT -tt $CONFIG_SERVER_TIMEOUT"
 fi
 
-echo Execute: $cmd
-$cmd
+echo Execute: $execute
+$execute
