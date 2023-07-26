@@ -17,11 +17,11 @@ options:
   server_timeout: 0.15
   client_timeout: 0.15
   implementation: "default"
-    name: Proxy implementation
-    description: Choose default or pysocks based
+#    name: Proxy implementation
+#    description: Choose default or pysocks based
   loglevel: "INFO"
-    name: Log level
-    description: Specify how granular the logs are.
+#    name: Log level
+#    description: Specify how granular the logs are.
 schema:
   port: int
   server_host: str
