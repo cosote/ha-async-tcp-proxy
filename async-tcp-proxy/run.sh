@@ -1,17 +1,26 @@
 #!/usr/bin/with-contenv bashio
 
 # Create main config
-CONFIG_LISTENPORT=$(bashio::config 'listenport')
-CONFIG_HOST=$(bashio::config 'targethost')
-CONFIG_PORT=$(bashio::config 'targetport')
-CONFIG_TIMEOUT=$(bashio::config 'receive_timeout')
+CONFIG_PORT=$(bashio::config 'port')
+CONFIG_SERVER_HOST=$(bashio::config 'server_host')
+CONFIG_SERVER_PORT=$(bashio::config 'server_port')
+CONFIG_SERVER_TIMEOUT=$(bashio::config 'server_timeout')
+CONFIG_CLIENT_TIMEOUT=$(bashio::config 'client_timeout')
 CONFIG_LOGLEVEL=$(bashio::config 'loglevel')
+CONFIG_PROXY_IMPLEMENTATION=$(bashio::config 'implementation')
 
 echo "Preparing to run async-tcp-proxy"
-echo "Listen on port: $CONFIG_LISTENPORT"
-echo "Target Server: $CONFIG_HOST:$CONFIG_PORT"
-echo "Timeout: $CONFIG_TIMEOUT"
+echo "Using implementation: $CONFIG_PROXY_IMPLEMENTATION"
+echo "Listen on port: $CONFIG_PORT"
+echo "Server: $CONFIG_SERVER_HOST:$CONFIG_SERVER_PORT"
+echo "Server timeout: $CONFIG_SERVER_TIMEOUT"
 echo "Loglevel: $CONFIG_LOGLEVEL"
-echo Execute: python async-tcp-proxy.py -lp ${CONFIG_LISTENPORT} -ti ${CONFIG_HOST} -tp ${CONFIG_PORT} -tt ${CONFIG_TIMEOUT}
 
-python async-tcp-proxy.py -lp ${CONFIG_LISTENPORT} -ti ${CONFIG_HOST} -tp ${CONFIG_PORT} -tt ${CONFIG_TIMEOUT}
+if [ "$CONFIG_PROXY_IMPLEMENTATION" = "bing-bot" ]; then
+  cmd=python async-tcp-proxy-version-bing-bot.py --port $CONFIG_PORT --server-host $CONFIG_SERVER_HOST --server-port $CONFIG_SERVER_PORT --server-timeout $CONFIG_SERVER_TIMEOUT --client-timeout $CONFIG_CLIENT_TIMEOUT
+else
+  cmd=python async-tcp-proxy.py -lp $CONFIG_PORT -ti $CONFIG_SERVER_HOST -tp $CONFIG_SERVER_PORT -tt $CONFIG_SERVER_TIMEOUT
+fi
+
+echo Execute: $cmd
+$cmd
