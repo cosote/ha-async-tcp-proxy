@@ -4,8 +4,6 @@ import logging
 
 MAX_CLIENT_TIMEOUT = 60
 BUFFER_SIZE = 2 ** 12 # 4kb
-CLOSE_REMOTE_SERVER_NO_DATA_RECEIVED_COUNT = 5
-remote_server_no_data_received_count = 0
 
 # Create a lock to synchronize access to the remote server
 remote_server_lock = asyncio.Lock()
@@ -14,12 +12,10 @@ remote_server_lock = asyncio.Lock()
 remote_server_connection = None
 async def get_remote_server_connection():
     global remote_server_connection
-    global remote_server_no_data_received_count
     if not remote_server_connection:
         try:
             remote_reader, remote_writer = await asyncio.open_connection(args.server_host, args.server_port)
             remote_server_connection = (remote_reader, remote_writer)
-            remote_server_no_data_received_count = 0
         except (ConnectionError, asyncio.TimeoutError) as e:
             logging.error(f'Error connecting to remote server: {e}')
             return
@@ -35,7 +31,8 @@ def close_remote_server_connection(reason):
    
 async def handle_client(reader, writer):
     try:
-        global remote_server_no_data_received_count
+        MAX_TIMEOUTS = 5
+        timeout_count = 0
         
         client_address = writer.get_extra_info('peername')
         log = logging.getLogger(client_address[0])
@@ -53,8 +50,10 @@ async def handle_client(reader, writer):
                 if data:
                     log.debug(f'Received {len(data)} bytes from client (new session)')
                 else:
-                    continue
+                    log.warning(f'No data received from client (new session)')
+                    return
             except asyncio.TimeoutError:
+                log.debug(f'Timeout receiving from client (new session)')
                 continue
             except ConnectionError as e:
                 log.error(f'Error reading from client: {e}')
@@ -70,8 +69,10 @@ async def handle_client(reader, writer):
                             if data:
                                 log.debug(f'Received {len(data)} bytes from client (existing session)')
                             else:
+                                log.debug(f'No data received from client (existing session)')
                                 break
                         except asyncio.TimeoutError:
+                            log.debug(f'Timeout receiving from client (existing session)')
                             break
                         except ConnectionError as e:
                             log.error(f'Error reading from client: {e}')
@@ -93,12 +94,12 @@ async def handle_client(reader, writer):
                         response = await asyncio.wait_for(remote_reader.read(BUFFER_SIZE), timeout=args.server_timeout)
                         if not response:
                             break
-                        remote_server_no_data_received_count = 0
+                        timeout_count = 0
                         log.debug(f'Received {len(response)} bytes from remote server')
                     except asyncio.TimeoutError:
-                        remote_server_no_data_received_count += 1
-                        if remote_server_no_data_received_count >= CLOSE_REMOTE_SERVER_NO_DATA_RECEIVED_COUNT:
-                            close_remote_server_connection(f'For {remote_server_no_data_received_count} times not data received')
+                        timeout_count += 1
+                        if timeout_count >= MAX_TIMEOUTS:
+                            close_remote_server_connection(f'For {timeout_count} times not data received')
                             return
                         break
                     except ConnectionError as e:
@@ -114,6 +115,7 @@ async def handle_client(reader, writer):
                         log.error(f'Error writing to client: {e}')
                         break
     finally:
+        log.info(f'Closing client connection')
         writer.close()
         
 async def main():
