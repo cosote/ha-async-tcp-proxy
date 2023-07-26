@@ -16,8 +16,8 @@ echo "Server: $CONFIG_SERVER_HOST:$CONFIG_SERVER_PORT"
 echo "Server timeout: $CONFIG_SERVER_TIMEOUT"
 echo "Loglevel: $CONFIG_LOGLEVEL"
 
-if [ "$CONFIG_PROXY_IMPLEMENTATION" = "bing-bot" ]; then
-  execute="python async-tcp-proxy-version-bing-bot.py --port $CONFIG_PORT --server-host $CONFIG_SERVER_HOST --server-port $CONFIG_SERVER_PORT --server-timeout $CONFIG_SERVER_TIMEOUT --client-timeout $CONFIG_CLIENT_TIMEOUT"
+if [ "$CONFIG_PROXY_IMPLEMENTATION" = "default" ]; then
+  execute="python async-tcp-proxy-version-bing-bot.py --port $CONFIG_PORT --server-host $CONFIG_SERVER_HOST --server-port $CONFIG_SERVER_PORT --server-timeout $CONFIG_SERVER_TIMEOUT --client-timeout $CONFIG_CLIENT_TIMEOUT" --loglevel $CONFIG_LOGLEVEL
 else
   execute="python async-tcp-proxy.py -lp $CONFIG_PORT -ti $CONFIG_SERVER_HOST -tp $CONFIG_SERVER_PORT -tt $CONFIG_SERVER_TIMEOUT"
 fi
