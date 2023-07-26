@@ -39,7 +39,7 @@ async def handle_client(reader, writer):
         
         client_address = writer.get_extra_info('peername')
         log = logging.getLogger(client_address[0])
-        log.info(f'New client connection from {client_address}')
+        log.info(f'New client connection')
 
         # Check if a connection to the remote server already exists
         async with remote_server_lock:
