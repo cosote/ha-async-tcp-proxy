@@ -57,7 +57,7 @@ async def main():
     parser.add_argument('--port', type=int, default=8899, help='proxy server port')
     parser.add_argument('--server-host', type=str, default='192.168.177.202', help='server host')
     parser.add_argument('--server-port', type=int, default=8899, help='server port')
-    parser.add_argument('--server-timeout', type=int, default=0.25, help='timeout for server response')
+    parser.add_argument('--server-timeout', type=float, default=0.25, help='timeout for server response')
     parser.add_argument('--client-timeout', type=float, default=0.1, help='timeout for additional client requests')
     global args
     args = parser.parse_args()
