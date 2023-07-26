@@ -62,7 +62,7 @@ async def main():
     global args
     args = parser.parse_args()
 
-    server = await asyncio.start_server(handle_client, 'localhost', args.port)
+    server = await asyncio.start_server(handle_client, '0.0.0.0', args.port)
     async with server:
         logging.info(f'TCP proxy server started on port {args.port}')
         await server.serve_forever()
