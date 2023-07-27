@@ -25,6 +25,3 @@ The addon has been only tested on HA modbus integration with SDM630v2 and PE11 d
 
 ### Output after Start
 <img width="1000" src="https://somthing.png">
-
-## Mentions
-This addon based on tcpproxy by René Werner, https://github.com/ickerwx/tcpproxy

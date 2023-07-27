@@ -1,6 +1,6 @@
 name: "async-tcp-proxy"
-description: "Proxy to access a tcp server using single async socket. Allows multiple tcp client connections of any protocol like Modbus."
-version: "0.0.3"
+description: "Proxy to access a tcp server using single connection. Allows multiple tcp client connections of any protocol like Modbus."
+version: "0.0.4"
 slug: "async_tcp_proxy"
 arch:
   - aarch64
@@ -29,6 +29,6 @@ schema:
   server_timeout: float
   client_timeout: float
   loglevel: list(DEBUG|INFO|WARNING|ERROR)
-  implementation: list(default|pysocks)
+  implementation: list(default)
 ports:
   8899/tcp: 8899
