@@ -18,10 +18,15 @@ The addon has been only tested on HA modbus integration with SDM630v2 and PE11 d
 - Install Asny TCP Proxy from the Add-On Store
 
 ## Configuration
-- To be added
+- The **server_host** and **server_port** are the first settings you need to update. This is the TCP-server behind the proxy and all client requests will be forwarded to that server.
+- Once a client sends data to the proxy, the following communication is synchronized and blocking any other client from getting processed. As the server behind the proxy might not always reply with data, **server_timeout** waits specified Seconds for that response, that will be then passed back to the client or breaks to allow other clients to be processed. The server_timeout number must be greater than 0 or no data would be received from the server.
+- The **client_timeout** allows a bulk packages from the same client to be processed in its current lock, without getting interrupted by other clients. If the client_timeout is 0, this functionality is disabled.
+- In **loglevel** INFO, we see only logs about new and closed client connections. When using **DEBUG**, every packet communication or experienced timeout will be logged.
+- The **port** and **implementation** options shouldn't be changed and will be removed.
 
 ### Configuration Tab
-<img width="400" src="https://somthing.png">
+![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/10b7e1ba-7684-4413-a83d-511f3cba00ad)
 
-### Output after Start
-<img width="1000" src="https://somthing.png">
+### Log Tab
+![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/4ca69914-f967-4307-9d84-e740d5b2a98d)
+
