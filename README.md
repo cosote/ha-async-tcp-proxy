@@ -22,7 +22,6 @@ The addon has been only tested on HA modbus integration with SDM630v2 and PE11 d
 - Once a client sends data to the proxy, the following communication is synchronized and blocking any other client from getting processed. As the server behind the proxy might not reply with data instantly or not at all, **server_timeout** waits specified Seconds for that response, that will be then passed back to the client or breaks to allow other clients to be processed. The server_timeout number must be greater than 0 or no data would be received from the server.
 - The **client_timeout** allows a bulk of packages from the same client to be processed in its current lock, without getting interrupted by other clients. If the client_timeout is 0, this functionality is disabled.
 - In **loglevel** Info, we see only logs about new and closed client connections. When using **DEBUG**, every packet communication or experienced timeout will be logged.
-- The **port** and **implementation** options shouldn't be changed and will be removed in future release.
 
 ### Configuration Tab
 ![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/e08214b3-c4a1-4817-b4c4-21c351ac7f77)
