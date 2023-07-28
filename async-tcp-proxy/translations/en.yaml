@@ -1,10 +1,9 @@
 ---
 configuration:
-  log_level:
+  loglevel:
     name: Log level
     description: >-
       Controls the level of log details the add-on provides.
-
   server_host:
     name: Server host
     description: >-
