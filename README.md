@@ -31,8 +31,8 @@ The addon has been only tested on HA modbus integration with SDM630v2 and PE11 d
 
 ## Other proxies
 Though all these proxies had issues with my Deye inverter or the PE11 protocol settings (none or Modbus), these proxies really look good.
-One addition of those is, that they decode the Modus packets, that ha-async-tcp-proxy is not doing (on purpose, probably in future?).
+One addition of those is, that they decode the Modus packets (except for tcpproxy), what ha-async-tcp-proxy is currently not doing (on purpose, probably in future?).
 - https://pypi.org/project/modbus-proxy
 - https://github.com/Akulatraxas/ha-modbusproxy
-- https://github.com/ickerwx/tcpproxy
 - https://docs.evcc.io/docs/reference/configuration/modbusproxy
+- https://github.com/ickerwx/tcpproxy
