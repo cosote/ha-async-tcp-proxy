@@ -25,7 +25,7 @@ The addon has been only tested on HA modbus integration with SDM630v2 and PE11 d
 - The **port** and **implementation** options shouldn't be changed and will be removed in future release.
 
 ### Configuration Tab
-![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/88da1fa5-1a92-490b-ae67-16dc8e9a52ae)
+![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/e08214b3-c4a1-4817-b4c4-21c351ac7f77)
 
 ### Log Tab
 ![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/c325fd04-bff4-4b06-b136-ef436b5e854d)
