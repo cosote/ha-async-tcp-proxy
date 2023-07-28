@@ -6,6 +6,9 @@ CONFIG_SERVER_PORT=$(bashio::config 'server_port')
 CONFIG_SERVER_TIMEOUT=$(bashio::config 'server_timeout')
 CONFIG_CLIENT_TIMEOUT=$(bashio::config 'client_timeout')
 CONFIG_LOGLEVEL=$(bashio::config 'loglevel')
+if [ "$CONFIG_LOGLEVEL" = "null" ]; then
+  CONFIG_LOGLEVEL=INFO
+fi
 
 echo "Preparing to run async-tcp-proxy"
 echo "Server: $CONFIG_SERVER_HOST:$CONFIG_SERVER_PORT"
