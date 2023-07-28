@@ -1,0 +1,28 @@
+---
+configuration:
+  log_level:
+    name: Log level
+    description: >-
+      Controls the level of log details the add-on provides.
+
+  server_host:
+    name: Server host
+    description: >-
+      The hostname/IP-address of the tcp-server behind the proxy.
+      All client requests are forwarded to this server.
+  server_port:
+    name: Server port
+    description: >-
+      The tcp-port of the server.
+  server_timeout:
+    name: Server response timeout
+    description: >-
+      The time in Seconds the proxy waits for server response.
+      If value is too high, communication of other clients will be delayed.
+  client_timeout:
+    name: Client response timeout
+    description: >-
+      The time in Seconds the proxy waits for additional requests from clients.
+      If value is zero, proxy is not waiting for additional requests and frees the lock.
+network:
+  8899/tcp: Proxy port

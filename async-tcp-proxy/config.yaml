@@ -7,28 +7,20 @@ arch:
   - amd64
   - armhf
   - armv7
+  - i386
 url: "https://github.com/cosote/ha-async-tcp-proxy"
 startup: services
 init: false
 options:
-  port: 8899
   server_host: "192.168.177.202"
   server_port: 8899
   server_timeout: 0.15
   client_timeout: 0.15
-  implementation: "default"
-#    name: Proxy implementation
-#    description: Choose default or pysocks based
-  loglevel: "INFO"
-#    name: Log level
-#    description: Specify how granular the logs are.
 schema:
-  port: int
   server_host: str
   server_port: int
   server_timeout: float
   client_timeout: float
-  loglevel: list(DEBUG|INFO|WARNING|ERROR)
-  implementation: list(default)
+  loglevel: list(DEBUG|INFO|WARNING|ERROR)?
 ports:
   8899/tcp: 8899
