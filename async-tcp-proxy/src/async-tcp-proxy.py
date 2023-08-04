@@ -10,14 +10,18 @@ import argparse
 import asyncio
 import logging
 
+# Default timeout waiting for client to request data from remote server
 MAX_CLIENT_TIMEOUT = 60
-BUFFER_SIZE = 2 ** 12 # 4kb
+
+# Default communication buffer size of 4kb
+BUFFER_SIZE = 2 ** 12
 
 # Create a lock to synchronize access to the remote server
 remote_server_lock = asyncio.Lock()
 
 # Create a global variable to store the remote server connection
 remote_server_connection = None
+
 async def get_remote_server_connection():
     global remote_server_connection
     if not remote_server_connection:
@@ -43,15 +47,18 @@ async def handle_client(reader, writer):
         timeout_count = 0
         
         client_address = writer.get_extra_info('peername')
-        log = logging.getLogger(client_address[0])
+        
+        # get logging for this client connection with ip address and port
+        log = logging.getLogger(f'{client_address[0]}:{client_address[1]}')
         log.info(f'New client connection')
 
         # Check if a connection to the remote server already exists
         async with remote_server_lock:
             remote_reader, remote_writer = await get_remote_server_connection()
 
-        # main client loop waiting to handle proxy communication
+        # main client loop waiting to handle proxy communication for client
         while True:
+            # Wait MAX_CLIENT_TIMEOUT for client to request data from remote server
             client_in_session = False
             try:
                 data = await asyncio.wait_for(reader.read(BUFFER_SIZE), timeout=MAX_CLIENT_TIMEOUT)
@@ -67,9 +74,9 @@ async def handle_client(reader, writer):
                 log.error(f'Error reading from client: {e}')
                 break
             
-            # Acquire the lock before waiting for additional data from the client
+            # Acquire the lock to ensure this client communicates to remote server exclusively
             async with remote_server_lock:
-                # start client "session" with defined client_timeout
+                # Start client "session" with defined client_timeout
                 while True:
                     if client_in_session:
                         try:
@@ -86,7 +93,7 @@ async def handle_client(reader, writer):
                             log.error(f'Error reading from client: {e}')
                             break
                     
-                    # now client sesssion starts and short client read timeout is used
+                    # Client sesssion starts now and short client read timeout is used
                     client_in_session = True
                     try:
                         # Forward data to remote server
@@ -105,9 +112,11 @@ async def handle_client(reader, writer):
                         timeout_count = 0
                         log.debug(f'Received {len(response)} bytes from remote server')
                     except asyncio.TimeoutError:
+                        # Remote server didn't response in time
                         timeout_count += 1
                         if timeout_count >= MAX_TIMEOUTS:
-                            close_remote_server_connection(f'For {timeout_count} times not data received')
+                            # We've reached the maximum number of timeouts from server and close remote server connection
+                            close_remote_server_connection(f'For {timeout_count} times no data received from remote server')
                             return
                         break
                     except ConnectionError as e:
@@ -138,10 +147,10 @@ async def main():
     global args
     args = parser.parse_args()
 
-    # init logging
+    # Initialize logging
     logging.basicConfig(level=args.loglevel.upper(), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     
-    # start proxy server
+    # Start proxy server
     server = await asyncio.start_server(handle_client, '0.0.0.0', args.port)
     async with server:
         logging.info(f'TCP proxy server started on port {args.port}')
