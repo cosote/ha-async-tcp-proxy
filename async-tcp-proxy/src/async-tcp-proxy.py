@@ -22,20 +22,20 @@ remote_server_lock = asyncio.Lock()
 # Create a global variable to store the remote server connection
 remote_server_connection = None
 
-async def get_remote_server_connection():
+async def get_remote_server_connection(log):
     global remote_server_connection
     if not remote_server_connection:
         try:
             remote_reader, remote_writer = await asyncio.open_connection(args.server_host, args.server_port)
             remote_server_connection = (remote_reader, remote_writer)
         except (ConnectionError, asyncio.TimeoutError) as e:
-            logging.error(f'Error connecting to remote server: {e}')
+            log.error(f'Error connecting to remote server: {e}')
             return
     return remote_server_connection
 
-def close_remote_server_connection(reason):
+def close_remote_server_connection(log, reason):
     global remote_server_connection
-    logging.warning(f'Closing remote server connection, reason: {reason}')
+    log.warning(f'Closing remote server connection, reason: {reason}')
     reader, writer = remote_server_connection
     remote_server_connection = None
     writer.close()
@@ -55,7 +55,7 @@ async def handle_client(reader, writer):
 
         # Check if a connection to the remote server already exists
         async with remote_server_lock:
-            remote_reader, remote_writer = await get_remote_server_connection()
+            remote_reader, remote_writer = await get_remote_server_connection(log)
 
         # main client loop waiting to handle proxy communication for client
         while True:
@@ -103,23 +103,23 @@ async def handle_client(reader, writer):
                     client_in_session = True
                     try:
                         # Forward data to remote server
-                        _, remote_writer = await get_remote_server_connection()
+                        _, remote_writer = await get_remote_server_connection(log)
                         remote_writer.write(data)
                         log.debug(f'Sent {len(data)} bytes to remote server')
                     except ConnectionError as e:
                         return_reason = f'Connection error writing to remote server: {e}'
                         log.error(return_reason)
-                        close_remote_server_connection(e)
+                        close_remote_server_connection(log, e)
                         return
                     except Excpetion as e:
                         return_reason = f'Error writing to remote server: {e}'
                         log.error(return_reason)
-                        close_remote_server_connection(e)
+                        close_remote_server_connection(log, e)
                         return
 
                     try:
                         # Read response from remote server
-                        remote_reader, _ = await get_remote_server_connection()
+                        remote_reader, _ = await get_remote_server_connection(log)
                         response = await asyncio.wait_for(remote_reader.read(BUFFER_SIZE), timeout=args.server_timeout)
                         if not response:
                             break
@@ -131,18 +131,18 @@ async def handle_client(reader, writer):
                         if timeout_count >= MAX_TIMEOUTS:
                             # We've reached the maximum number of timeouts from server and close remote server connection
                             return_reason = f'For {timeout_count} times no data received from remote server'
-                            close_remote_server_connection(return_reason)
+                            close_remote_server_connection(log, return_reason)
                             return
                         break
                     except ConnectionError as e:
                         return_reason = f'Connection error reading from remote server: {e}'
                         log.error(return_reason)
-                        close_remote_server_connection(e)
+                        close_remote_server_connection(log, e)
                         return
                     except Excpetion as e:
                         return_reason = f'Error reading from remote server: {e}'
                         log.error(return_reason)
-                        close_remote_server_connection(e)
+                        close_remote_server_connection(log, e)
                         return
 
                     try:
