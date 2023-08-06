@@ -178,5 +178,7 @@ async def main():
         async with server:
             logging.info(f'TCP proxy server started on port {args.port}')
             await server.serve_forever()
+    except BaseExcpetion as e:
+        logging.critical(f'Critical error: {e}')
 
 asyncio.run(main())
