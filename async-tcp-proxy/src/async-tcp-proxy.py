@@ -120,10 +120,13 @@ async def handle_client(reader, writer):
                             return
                         break
                     except ConnectionError as e:
-                        log.error(f'Error reading from remote server: {e}')
+                        log.error(f'Connection error reading from remote server: {e}')
                         close_remote_server_connection(e)
                         return
-                        
+                    except BaseExcpetion as e:
+                        log.error(f'Error reading from remote server: {e}')
+                        close_remote_server_connection(e)
+                        return                        
                     try:
                         # Send response to client
                         writer.write(response)
