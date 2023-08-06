@@ -40,14 +40,15 @@ def close_remote_server_connection(reason):
     remote_server_connection = None
     writer.close()
     return reader, writer
-   
+
 async def handle_client(reader, writer):
     try:
         MAX_TIMEOUTS = 5
         timeout_count = 0
-        
+        return_reason = 'unknown'
+
         client_address = writer.get_extra_info('peername')
-        
+
         # get logging for this client connection with ip address and port
         log = logging.getLogger(f'{client_address[0]}:{client_address[1]}')
         log.info(f'New client connection')
@@ -65,15 +66,17 @@ async def handle_client(reader, writer):
                 if data:
                     log.debug(f'Received {len(data)} bytes from client (new session)')
                 else:
-                    log.warning(f'No data received from client (new session)')
+                    return_reason = f'No data received from client (new session)'
+                    log.debug(return_reason)
                     return
             except asyncio.TimeoutError:
                 log.debug(f'Timeout receiving from client (new session)')
                 continue
             except ConnectionError as e:
-                log.error(f'Error reading from client: {e}')
-                break
-            
+                return_reason = f'Error reading from client: {e}'
+                log.error(return_reason)
+                return
+
             # Acquire the lock to ensure this client communicates to remote server exclusively
             async with remote_server_lock:
                 # Start client "session" with defined client_timeout
@@ -92,7 +95,7 @@ async def handle_client(reader, writer):
                         except ConnectionError as e:
                             log.error(f'Error reading from client: {e}')
                             break
-                    
+
                     # Client sesssion starts now and short client read timeout is used
                     client_in_session = True
                     try:
@@ -100,10 +103,11 @@ async def handle_client(reader, writer):
                         remote_writer.write(data)
                         log.debug(f'Sent {len(data)} bytes to remote server')
                     except ConnectionError as e:
-                        log.error(f'Error writing to remote server: {e}')
+                        return_reason = f'Error writing to remote server: {e}'
+                        log.error(return_reason)
                         close_remote_server_connection(e)
                         return
-                    
+
                     try:
                         # Read response from remote server
                         response = await asyncio.wait_for(remote_reader.read(BUFFER_SIZE), timeout=args.server_timeout)
@@ -116,17 +120,21 @@ async def handle_client(reader, writer):
                         timeout_count += 1
                         if timeout_count >= MAX_TIMEOUTS:
                             # We've reached the maximum number of timeouts from server and close remote server connection
-                            close_remote_server_connection(f'For {timeout_count} times no data received from remote server')
+                            return_reason = f'For {timeout_count} times no data received from remote server'
+                            close_remote_server_connection(return_reason)
                             return
                         break
                     except ConnectionError as e:
-                        log.error(f'Connection error reading from remote server: {e}')
+                        return_reason = f'Connection error reading from remote server: {e}'
+                        log.error(return_reason)
                         close_remote_server_connection(e)
                         return
                     except BaseExcpetion as e:
-                        log.error(f'Error reading from remote server: {e}')
+                        return_reason = f'Error reading from remote server: {e}'
+                        log.error(return_reason)
                         close_remote_server_connection(e)
-                        return                        
+                        return
+
                     try:
                         # Send response to client
                         writer.write(response)
@@ -135,9 +143,9 @@ async def handle_client(reader, writer):
                         log.error(f'Error writing to client: {e}')
                         break
     finally:
-        log.info(f'Closing client connection')
+        log.info(f'Closing client connection, reason: {return_reason}')
         writer.close()
-        
+
 async def main():
     parser = argparse.ArgumentParser(description='TCP proxy server')
     parser.add_argument('--port', type=int, default=8899, help='proxy server port')
@@ -146,13 +154,13 @@ async def main():
     parser.add_argument('--server-timeout', type=float, default=0.15, help='timeout for server response')
     parser.add_argument('--client-timeout', type=float, default=0.15, help='timeout for additional client requests')
     parser.add_argument('--loglevel', type=str, default='INFO', help='log level: DEBUG, INFO, WARNING, ERROR, CRITICAL')
-    
+
     global args
     args = parser.parse_args()
 
     # Initialize logging
     logging.basicConfig(level=args.loglevel.upper(), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
+
     # Start proxy server
     server = await asyncio.start_server(handle_client, '0.0.0.0', args.port)
     async with server:
