@@ -95,7 +95,7 @@ async def handle_client(reader, writer):
                         except ConnectionError as e:
                             return_reason = f'Connection error reading from client: {e}'
                             return
-                        except BaseExcpetion as e:
+                        except Excpetion as e:
                             return_reason = f'Error reading from client: {e}'
                             return
 
@@ -110,7 +110,7 @@ async def handle_client(reader, writer):
                         log.error(return_reason)
                         close_remote_server_connection(e)
                         return
-                    except BaseExcpetion as e:
+                    except Excpetion as e:
                         return_reason = f'Error writing to remote server: {e}'
                         log.error(return_reason)
                         close_remote_server_connection(e)
@@ -137,7 +137,7 @@ async def handle_client(reader, writer):
                         log.error(return_reason)
                         close_remote_server_connection(e)
                         return
-                    except BaseExcpetion as e:
+                    except Excpetion as e:
                         return_reason = f'Error reading from remote server: {e}'
                         log.error(return_reason)
                         close_remote_server_connection(e)
@@ -150,7 +150,7 @@ async def handle_client(reader, writer):
                     except ConnectionError as e:
                         return_reason = f'Connection error writing to client: {e}'
                         return
-                    except BaseExcpetion as e:
+                    except Excpetion as e:
                         return_reason = f'Error writing to client: {e}'
                         return
     finally:
@@ -178,7 +178,7 @@ async def main():
         async with server:
             logging.info(f'TCP proxy server started on port {args.port}')
             await server.serve_forever()
-    except BaseExcpetion as e:
+    except Excpetion as e:
         logging.critical(f'Critical error: {e}')
 
 asyncio.run(main())
