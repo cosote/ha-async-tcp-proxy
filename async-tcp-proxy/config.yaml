@@ -21,6 +21,6 @@ schema:
   server_port: int
   server_timeout: float
   client_timeout: float
-  loglevel: list(DEBUG|INFO|WARNING|ERROR)?
+  loglevel: list(NOTSET|DEBUG|INFO|WARNING|ERROR|CRITICAL)?
 ports:
   8899/tcp: 8899
