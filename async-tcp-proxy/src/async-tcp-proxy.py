@@ -103,6 +103,7 @@ async def handle_client(reader, writer):
                     client_in_session = True
                     try:
                         # Forward data to remote server
+                        _, remote_writer = await get_remote_server_connection()
                         remote_writer.write(data)
                         log.debug(f'Sent {len(data)} bytes to remote server')
                     except ConnectionError as e:
@@ -118,6 +119,7 @@ async def handle_client(reader, writer):
 
                     try:
                         # Read response from remote server
+                        remote_reader, _ = await get_remote_server_connection()
                         response = await asyncio.wait_for(remote_reader.read(BUFFER_SIZE), timeout=args.server_timeout)
                         if not response:
                             break
