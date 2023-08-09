@@ -42,14 +42,16 @@ def close_remote_server_connection(log, reason):
     return reader, writer
 
 # Source: https://code.activestate.com/recipes/142812-hex-dumper/
+hex_dump_FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
 def hex_dump(src, length=8):
-    result=[]
-    for i in xrange(0, len(src), length):
-       s = src[i:i+length]
+    N=0; result=''
+    while src:
+       s,src = src[:length],src[length:]
        hexa = ' '.join(["%02X"%ord(x) for x in s])
-       printable = s.translate(''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)]))
-       result.append("%04X   %-*s   %s\n" % (i, length*3, hexa, printable))
-    return ''.join(result)
+       s = s.translate(hex_dump_FILTER)
+       result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+       N+=length
+    return result
 
 async def handle_client(reader, writer):
     try:
