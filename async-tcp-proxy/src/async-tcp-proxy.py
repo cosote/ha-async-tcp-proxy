@@ -41,6 +41,16 @@ def close_remote_server_connection(log, reason):
     writer.close()
     return reader, writer
 
+# Source: https://code.activestate.com/recipes/142812-hex-dumper/
+def hex_dump(src, length=8):
+    result=[]
+    for i in xrange(0, len(src), length):
+       s = src[i:i+length]
+       hexa = ' '.join(["%02X"%ord(x) for x in s])
+       printable = s.translate(''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)]))
+       result.append("%04X   %-*s   %s\n" % (i, length*3, hexa, printable))
+    return ''.join(result)
+
 async def handle_client(reader, writer):
     try:
         MAX_TIMEOUTS = 5
@@ -126,7 +136,8 @@ async def handle_client(reader, writer):
                         timeout_count = 0
                         log.debug(f'Received {len(response)} bytes from remote server')
                     except asyncio.TimeoutError:
-                        # Remote server didn't response in time
+                        # Remote server didn't respond in time
+                        log.debug(f'No response from remote server for client request:\n{hex_dump(data)}')
                         timeout_count += 1
                         if timeout_count >= MAX_TIMEOUTS:
                             # We've reached the maximum number of timeouts from server and close remote server connection
