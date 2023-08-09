@@ -41,17 +41,16 @@ def close_remote_server_connection(log, reason):
     writer.close()
     return reader, writer
 
-# Source: https://code.activestate.com/recipes/142812-hex-dumper/
-hex_dump_FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
-def hex_dump(src, length=8):
-    N=0; result=''
-    while src:
-       s,src = src[:length],src[length:]
-       hexa = ' '.join(["%02X"%ord(x) for x in s])
-       s = s.translate(hex_dump_FILTER)
-       result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-       N+=length
-    return result
+# Source: https://github.com/ickerwx/tcpproxy/blob/master/proxymodules/hexdump.py
+def hex_dump(data, length=16):
+        result = []
+        digits = 2
+        for i in range(0, len(data), length):
+            s = data[i:i + length]
+            hexa = ' '.join(['%0*X' % (digits, x) for x in s])
+            text = ''.join([chr(x) if 0x20 <= x < 0x7F else '.' for x in s])
+            result.append("%04X   %-*s   %s" % (i, length * (digits + 1), hexa, text))
+        return "\n".join(result)
 
 async def handle_client(reader, writer):
     try:
