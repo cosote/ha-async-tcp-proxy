@@ -75,7 +75,9 @@ async def handle_client(reader, writer):
             try:
                 data = await asyncio.wait_for(reader.read(BUFFER_SIZE), timeout=MAX_CLIENT_TIMEOUT)
                 if data:
-                    log.debug(f'Received {len(data)} bytes from client (new session)')
+                    if log.isEnabledFor(DEBUG):
+                        log.debug(f'Received {len(data)} bytes from client (new session)')
+                        log.debug(f'{hex_dump(data)}')
                 else:
                     return_reason = f'No data received from client (new session)'
                     log.debug(return_reason)
@@ -96,7 +98,9 @@ async def handle_client(reader, writer):
                         try:
                             data = await asyncio.wait_for(reader.read(BUFFER_SIZE), timeout=args.client_timeout)
                             if data:
-                                log.debug(f'Received {len(data)} bytes from client (existing session)')
+                                if log.isEnabledFor(DEBUG):
+                                    log.debug(f'Received {len(data)} bytes from client (existing session)')
+                                    log.debug(f'{hex_dump(data)}')
                             else:
                                 log.debug(f'No data received from client (existing session)')
                                 break
@@ -135,10 +139,13 @@ async def handle_client(reader, writer):
                         if not response:
                             break
                         timeout_count = 0
-                        log.debug(f'Received {len(response)} bytes from remote server')
+                        if log.isEnabledFor(DEBUG):
+                            log.debug(f'Received {len(response)} bytes from remote server')
+                            log.debug(f'{hex_dump(response)}')
                     except asyncio.TimeoutError:
                         # Remote server didn't respond in time
-                        log.debug(f'No response from remote server for client request:\n{hex_dump(data)}')
+                        if log.isEnabledFor(DEBUG):
+                            log.debug(f'No response from remote server for client request:\n{hex_dump(data)}')
                         timeout_count += 1
                         if timeout_count >= MAX_TIMEOUTS:
                             # We've reached the maximum number of timeouts from server and close remote server connection
