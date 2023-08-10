@@ -76,8 +76,7 @@ async def handle_client(reader, writer):
                 data = await asyncio.wait_for(reader.read(BUFFER_SIZE), timeout=MAX_CLIENT_TIMEOUT)
                 if data:
                     if log.isEnabledFor(logging.DEBUG):
-                        log.debug(f'Received {len(data)} bytes from client (new session)')
-                        log.debug(f'{hex_dump(data)}')
+                        log.debug(f'Received {len(data)} bytes from client (new session):\n{hex_dump(data)}')
                 else:
                     return_reason = f'No data received from client (new session)'
                     log.debug(return_reason)
@@ -99,8 +98,7 @@ async def handle_client(reader, writer):
                             data = await asyncio.wait_for(reader.read(BUFFER_SIZE), timeout=args.client_timeout)
                             if data:
                                 if log.isEnabledFor(logging.DEBUG):
-                                    log.debug(f'Received {len(data)} bytes from client (existing session)')
-                                    log.debug(f'{hex_dump(data)}')
+                                    log.debug(f'Received {len(data)} bytes from client (existing session):\n{hex_dump(data)}')
                             else:
                                 log.debug(f'No data received from client (existing session)')
                                 break
@@ -140,8 +138,7 @@ async def handle_client(reader, writer):
                             break
                         timeout_count = 0
                         if log.isEnabledFor(logging.DEBUG):
-                            log.debug(f'Received {len(response)} bytes from remote server')
-                            log.debug(f'{hex_dump(response)}')
+                            log.debug(f'Received {len(response)} bytes from remote server:\n{hex_dump(response)}')
                     except asyncio.TimeoutError:
                         # Remote server didn't respond in time
                         if log.isEnabledFor(logging.DEBUG):
