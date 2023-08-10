@@ -30,11 +30,11 @@ The addon has been only tested on HA modbus integration with SDM630v2 and PE11 d
 ![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/c325fd04-bff4-4b06-b136-ef436b5e854d)
 
 ## TODO
-- Add support for multiple servers behind the proxy on different ports
-- Collect statistics to better adjust timeouts
-- Auto detect/custom client request detection when server will not respond
-- Modbus protocol parsing and custom data manipulation
+- Collect statistics to simplify timeout adjustments
 - General code improvements/refactoring
+- Add support for multiple servers (fixed number of 3?) behind the proxy on different exposed ports
+- Support client request where server will never respond (Deye sends some tcp packages that don't create a response on PE11 server)
+- Modbus protocol parsing and custom data manipulation (e.g. change Modbus identifier or so)
 
 ## Other proxies
 Though all these proxies had issues with my Deye inverter or the PE11 protocol settings (none or Modbus), these proxies really look good.
