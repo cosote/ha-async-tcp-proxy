@@ -31,6 +31,7 @@ The addon has been only tested on HA modbus integration with SDM630v2 and PE11 d
 
 ## TODO
 - Add support for multiple servers behind the proxy on different ports
+- Collect statistics to better adjust timeouts
 - Auto detect/custom client request detection when server will not respond
 - Modbus protocol parsing and custom data manipulation
 - General code improvements/refactoring
