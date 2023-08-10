@@ -1,14 +1,8 @@
 # Home Assistant AddOn Async TCP Proxy
 
-It's a simple TCP Proxy addon.
-I created it, because none of the existing modbus proxies worked for me on PE11 devices in any of the device modes.
-I needed a reliable communication between my Deye SUN-10K-SG04LP3-EU hybrid-inverter and SDM630v2.
-At the same time I use HA modbus, to read certain registers from the energy meter, and without a proxy, it's problematic.
+It's a simple TCP Proxy addon. I created it, because none of the existing modbus proxies worked for me on PE11 devices in any of the device modes. I needed a reliable communication between my Deye SUN-10K-SG04LP3-EU hybrid-inverter and SDM630v2. At the same time I use HA modbus to read certain registers from the energy meter, and without a proxy, it's really problematic, as there's no free time-window due to the Deye inverter sending 3 requests or so per Second.
 
-One PE11 is connected to SDM630v2 and is the single RS485 master for the SDM630 client. It's running as a tcp-server
-(in serial protocol none config) and configured in the proxy addon as the target (server) host. HA modbus is polling
-registers in rtuovertcp mode. The second PE11 is connected to the modbus energy meter port on the Deye inverter and configured
-as tcp-client (also with serial protocol none config) to my HA host on this proxy port.
+One PE11 is connected to SDM630v2 and is the single RS485 master for the SDM630 client. It's running as a tcp-server (in serial protocol none config) and configured in the proxy addon as the server behind the proxy. HA modbus is polling registers in rtuovertcp mode connected to the addon exposed port running on HA. The second PE11 is connected to the modbus energy meter port on the Deye inverter and configured as tcp-client (also with serial protocol none config) also to my HA host on this proxy port.
 
 The addon has been only tested on HA modbus integration with SDM630v2 and PE11 devices on Deye inverter, see [PE11](http://www.hi-flying.com/pe11).
 
