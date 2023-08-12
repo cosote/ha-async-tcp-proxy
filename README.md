@@ -37,3 +37,196 @@ One addition of those is, that they decode the Modbus packets (except for tcppro
 - https://github.com/Akulatraxas/ha-modbusproxy
 - https://docs.evcc.io/docs/reference/configuration/modbusproxy
 - https://github.com/ickerwx/tcpproxy
+
+## My configuration
+The default async-tcp-proxy addon configuration is based on my HA setup. The PE11 TCP-Server is running on IP 192.168.177.202:8899 and connected with 38400 baud, 8 data bit, 1 stop bit and none parity to my SDM630v2. This PE11 TCP-Server is configured behind the proxy.
+
+### Two clients are configured to connect to the proxy
+The async-tcp-proxy is running on my HA system on IP 192.168.177.222:8899 with these clients accessing it:
+- PE11 TCP-Client connected to the Deye Inverter on the RS485 modbus port for energy meter
+- HA modbus integration, see my yaml configuration here:
+  <details><summary>Sample HA modbus yaml</summary>
+
+  ```yaml
+  # Used in dashboards:
+  # sdm630_total_energy
+  # sdm630_total_power_consumption
+  # sdm630_frequency_of_supply_voltages
+  # sdm630_phase_1_export_active_energy
+  # sdm630_phase_2_export_active_energy
+  # sdm630_phase_3_export_active_energy
+  # sdm630_phase_1_import_active_energy
+  # sdm630_phase_2_import_active_energy
+  # sdm630_phase_3_import_active_energy
+  modbus:
+  - name: sdm630
+    host: localhost
+    port: 8899
+    #type: tcp udp serial rtuovertcp
+    type: rtuovertcp
+    close_comm_on_error: false
+    retries: 0
+    timeout: 1
+    #retry_on_empty: true
+    sensors:
+      # SDM630 modbus registers 27 - 36
+      - name: sdm_630_registers_27_36
+        unique_id: sdm_630_registers_27_36
+        address: 52
+        input_type: input
+        count: 20
+        data_type: custom
+        structure: ">10f"
+        precision: 5
+        scan_interval: 5
+  
+      # SDM630 modbus registers 172 - 179
+      - name: sdm_630_registers_172_179
+        unique_id: sdm_630_registers_172_179
+        address: 342
+        input_type: input
+        count: 16
+        data_type: custom
+        structure: ">8f"
+        precision: 3
+        scan_interval: 5
+
+  template:
+    - sensor:
+      # Total system power.
+      - unique_id: sdm630_total_power_consumption
+        name: sdm630_total_power_consumption
+        state: >
+          {% set last_value = states('sensor.sdm630_total_power_consumption') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_27_36').split(',')[0] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Total system power.'
+        unit_of_measurement: W
+        device_class: power
+      # Frequency of supply voltages
+      - unique_id: sdm630_frequency_of_supply_voltages
+        name: sdm630_frequency_of_supply_voltages
+        state: >
+          {% set last_value = states('sensor.sdm630_frequency_of_supply_voltages') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_27_36').split(',')[9] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Frequency of supply voltages'
+        unit_of_measurement: Hz
+        device_class: frequency
+      # Total active energy
+      - unique_id: sdm630_total_energy
+        name: sdm630_total_energy
+        state: >
+          {% set last_value = states('sensor.sdm630_total_energy') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_172_179').split(',')[0] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Total active energy'
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total
+      # Phase 1 import active energy
+      - unique_id: sdm630_phase_1_import_active_energy
+        name: sdm630_phase_1_import_active_energy
+        state: >
+          {% set last_value = states('sensor.sdm630_phase_1_import_active_energy') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_172_179').split(',')[2] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Phase 1 import active energy'
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total
+      # Phase 2 import active energy
+      - unique_id: sdm630_phase_2_import_active_energy
+        name: sdm630_phase_2_import_active_energy
+        state: >
+          {% set last_value = states('sensor.sdm630_phase_2_import_active_energy') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_172_179').split(',')[3] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Phase 2 import active energy'
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total
+      # Phase 3 import active energy
+      - unique_id: sdm630_phase_3_import_active_energy
+        name: sdm630_phase_3_import_active_energy
+        state: >
+          {% set last_value = states('sensor.sdm630_phase_3_import_active_energy') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_172_179').split(',')[4] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Phase 3 import active energy'
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total
+      # Phase 1 export active energy
+      - unique_id: sdm630_phase_1_export_active_energy
+        name: sdm630_phase_1_export_active_energy
+        state: >
+          {% set last_value = states('sensor.sdm630_phase_1_export_active_energy') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_172_179').split(',')[5] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Phase 1 export active energy'
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total
+      # Phase 2 export active energy
+      - unique_id: sdm630_phase_2_export_active_energy
+        name: sdm630_phase_2_export_active_energy
+        state: >
+          {% set last_value = states('sensor.sdm630_phase_2_export_active_energy') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_172_179').split(',')[6] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Phase 2 export active energy'
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total
+      # Phase 3 export active energy
+      - unique_id: sdm630_phase_3_export_active_energy
+        name: sdm630_phase_3_export_active_energy
+        state: >
+          {% set last_value = states('sensor.sdm630_phase_3_export_active_energy') | float(0) %}
+          {% set curr_value = states('sensor.sdm_630_registers_172_179').split(',')[7] | float(0) %}
+          {% if curr_value == 0 %}{{ last_value }}{% else %}{{ curr_value }}{% endif %}
+        attributes:
+          friendly_name: 'Phase 3 export active energy'
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total
+
+  utility_meter:
+    # Total active energy Today
+    sdm630_total_energy_today:
+      name: sdm630_total_energy_today
+      unique_id: sdm630_total_energy_today
+      source: sensor.sdm630_total_energy
+      cycle: daily
+  ```
+  </details>
+  
+### PE11 TCP-Server on SDM630v2
+<details><summary>Serial Port Settings</summary>
+
+![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/3e5cdb1c-54b2-4d18-b2db-e333286f272f)
+</details>
+
+<details><summary>Communication Settings</summary>
+
+![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/a5470e26-da0e-4321-98bc-2b6013632bbe)
+</details>
+
+### PE11 TCP-Client on Deye inverter
+<details><summary>Serial Port Settings</summary>
+
+![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/c05aaf5c-7e95-454f-a45d-3aa20b280f53)
+</details>
+
+<details><summary>Communication Settings</summary>
+![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/ab36dbd6-f4f3-4ce7-ac0e-41172653a2de)
+</details>
