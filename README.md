@@ -228,5 +228,6 @@ The async-tcp-proxy is running on my HA system on IP 192.168.177.222:8899 with t
 </details>
 
 <details><summary>Communication Settings</summary>
+
 ![image](https://github.com/cosote/ha-async-tcp-proxy/assets/15175818/ab36dbd6-f4f3-4ce7-ac0e-41172653a2de)
 </details>
