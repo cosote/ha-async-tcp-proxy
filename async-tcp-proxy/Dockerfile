@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 RUN apk add --no-cache python3 py3-pip py3-pysocks
 
 # Install python modules
-#RUN pip install PySocks
+RUN pip install PySocks
 
 # Copy data for add-on
 WORKDIR /
