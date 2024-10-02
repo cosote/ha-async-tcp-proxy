@@ -2,7 +2,7 @@ ARG BUILD_FROM
 FROM $BUILD_FROM
 
 # Install python + pip
-RUN apk add --no-cache python3 py3-pip
+RUN apk add --no-cache python3 py3-pip py3-pysocks
 
 # Install python modules
 RUN pip install PySocks
